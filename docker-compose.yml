@@ -1,0 +1,52 @@
+version: '3.8'
+services:
+  app:
+    image: node:latest
+    container_name: jokes_server
+    build: ./
+    restart: always
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "3000:3000"
+    command: node server.js
+    depends_on:
+      - jokes_db
+      - rabbitmq
+
+  etl:
+    container_name: jokes_etl
+    build: ./etl
+    depends_on:
+      - jokes_db
+      - rabbitmq
+    environment:
+      - MYSQL_HOST=mysql
+      - RABBITMQ_URL=amqp://rabbitmq
+
+  jokes_db:
+    image: mysql
+    container_name: jokes_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: jokesDB
+      MYSQL_USER: maila
+      MYSQL_PASSWORD: maila123
+      MYSQL_ROOT_PASSWORD: maila123
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: jokes_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+  db_data:
+  rabbitmq_data:

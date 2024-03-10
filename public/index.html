@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background-color: #ffccf9;
+            color: #ff3399;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            background-color: #fff0f7;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .container:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1)
+        }
+
+        form {
+            margin-bottom: 30px;
+        }
+
+        select, button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            border: 2px solid #ff99cc;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        button {
+            background-color: #ff66b2;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #ff3399;
+        }
+
+        #jokeDisplay {
+            background-color: #ffccf9;
+            padding: 20px;
+            border-radius: 25px;
+            border: 2px dashed #ffccf9;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-top: 20px;
+            color: white;
+        }
+
+        #jokeDisplay::before {
+            content: '';
+            font-size: 20px;        }
+
+        #jokeDisplay::after {
+            content: '';
+            font-size: 20px;        }
+    </style>
+    <title>Joke Generator</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Joke Generator</h1>
+        <form id="jokeForm">
+            <label for="jokeType">Choose a Joke Type:</label>
+            <select name="jokeType" id="jokeType">
+            </select>
+            <button type="submit">Get Joke</button>
+        </form>
+        <div id="jokeDisplay"></div>
+    </div>
+    <script>
+        // Function to load joke types
+        function loadJokeTypes() {
+    fetch('/type') 
+        .then(response => response.json())
+        .then(types => {
+            const jokeTypeSelect = document.getElementById('jokeType');
+            jokeTypeSelect.innerHTML = types.map(type => `<option value="${type}">${type}</option>`).join('');
+        })
+        .catch(error => console.error('Error loading joke types:', error));
+}
+    
+        document.addEventListener('DOMContentLoaded', loadJokeTypes);
+    
+        document.getElementById('jokeType').addEventListener('focus', loadJokeTypes);
+    </script>    
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('jokeForm');
+    const jokeDisplay = document.getElementById('jokeDisplay');
+    
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const jokeType = document.getElementById('jokeType').value;
+        
+        fetch(`/joke?type=${jokeType}`) 
+            .then(response => response.json())
+            .then(joke => {
+                if (joke.setup) {
+                    jokeDisplay.innerText = joke.setup + ' ' + joke.punchline;
+                } else {
+                    jokeDisplay.innerText = 'No joke found for the selected type.';
+                }
+            })
+            .catch(error => {
+                jokeDisplay.innerText = 'Error fetching joke: ' + error.message;
+            });
+    });
+});
+    </script>
+</body>
+</html>
